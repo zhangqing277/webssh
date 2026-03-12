@@ -1,0 +1,24 @@
+{
+  "active_provider": "qwen",
+  "providers": {
+    "qwen": {
+      "enabled": false,
+      "api_key": "",
+      "model": "qwen-plus",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    },
+    "azure_openai": {
+      "enabled": false,
+      "api_key": "",
+      "endpoint": "",
+      "deployment": "gpt-4",
+      "api_version": "2024-02-01"
+    },
+    "openai_compatible": {
+      "enabled": false,
+      "api_key": "",
+      "base_url": "",
+      "model": ""
+    }
+  }
+}

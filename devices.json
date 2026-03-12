@@ -1,0 +1,31 @@
+{
+  "devices": [
+    {
+      "id": "05eb2d59-122d-4134-972b-64fa3eb1a47d",
+      "name": "测试路由器",
+      "host": "192.168.1.1",
+      "port": 22,
+      "username": "admin",
+      "password": "admin123",
+      "protocol": "ssh",
+      "group": "核心设备",
+      "description": "测试用路由器",
+      "created_at": "2026-03-11T18:21:56.167415",
+      "last_connected": "2026-03-11T18:42:28.278790"
+    },
+    {
+      "id": "dcd4e787-d3f1-4b08-a716-18745d6b6cf3",
+      "name": "147",
+      "host": "192.168.0.147",
+      "port": 22,
+      "username": "ubuntu",
+      "password": "ubuntu",
+      "protocol": "ssh",
+      "group": "",
+      "description": "",
+      "created_at": "2026-03-11T18:22:49.061840",
+      "last_connected": "2026-03-12T15:40:04.309034"
+    }
+  ],
+  "updated_at": "2026-03-12T15:40:04.309049"
+}

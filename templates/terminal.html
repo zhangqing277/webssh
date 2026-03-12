@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络设备管理平台 - 终端</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: rgba(22, 33, 62, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 0 20px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .navbar-brand {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-btn {
+            padding: 6px 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+        .nav-btn.primary {
+            border-color: #4a9eff;
+            color: #4a9eff;
+        }
+        .nav-btn.primary:hover {
+            background: rgba(74,158,255,0.15);
+        }
+        .user-info {
+            color: #888;
+            font-size: 13px;
+        }
+
+        /* 连接面板 */
+        .conn-panel {
+            background: rgba(22, 33, 62, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .conn-panel select, .conn-panel input {
+            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 5px;
+            background: rgba(255,255,255,0.08);
+            color: #e0e0e0;
+            font-size: 13px;
+            outline: none;
+        }
+        .conn-panel select { width: 100px; }
+        .conn-panel input { width: 160px; }
+        .conn-panel input.port-input { width: 70px; }
+        .conn-panel input.pwd-input { width: 140px; }
+        .conn-btn {
+            padding: 6px 18px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .conn-btn.connect {
+            background: #22c55e;
+            color: #fff;
+        }
+        .conn-btn.connect:hover { background: #16a34a; }
+        .conn-btn.disconnect {
+            background: #ef4444;
+            color: #fff;
+        }
+        .conn-btn.disconnect:hover { background: #dc2626; }
+        .conn-status {
+            margin-left: auto;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+        }
+        .status-dot.connected { background: #22c55e; }
+        .status-dot.connecting { background: #f59e0b; }
+        .ssh-fields { display: none; }
+        .ssh-fields.show { display: contents; }
+
+        /* 终端区域 */
+        .terminal-wrapper {
+            flex: 1 1 0;
+            padding: 4px;
+            overflow: hidden;
+            position: relative;
+            min-height: 0;
+        }
+        #terminal-container {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+        }
+        #terminal-container .xterm {
+            height: 100%;
+        }
+        #terminal-container .xterm-viewport {
+            overflow-y: auto !important;
+        }
+
+        /* 设备列表面板 */
+        .devices-panel {
+            position: fixed;
+            left: 0;
+            top: 97px;
+            width: 300px;
+            height: calc(100vh - 97px);
+            background: rgba(22, 33, 62, 0.97);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            z-index: 150;
+            overflow-y: auto;
+            padding: 16px;
+            display: none;
+        }
+        .devices-panel.show {
+            display: block;
+        }
+        .devices-panel h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #c8e0ff;
+        }
+        .device-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .device-item:hover {
+            background: rgba(74,158,255,0.1);
+            border-color: rgba(74,158,255,0.3);
+        }
+        .device-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .device-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: #e0e0e0;
+        }
+        .device-host {
+            font-size: 12px;
+            color: #888;
+            font-family: 'Consolas', monospace;
+        }
+        .device-group {
+            font-size: 11px;
+            color: #4a9eff;
+            background: rgba(74,158,255,0.15);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        .device-connect-btn {
+            width: 100%;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            background: #22c55e;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .device-connect-btn:hover {
+            background: #16a34a;
+        }
+
+        /* 终端区域调整 */
+        .terminal-wrapper.with-devices {
+            margin-left: 300px;
+        }
+
+        /* AI助手窗口 - 可拖拽 */
+        .ai-panel {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 420px;
+            height: 520px;
+            background: rgba(22, 33, 62, 0.97);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            overflow: hidden;
+            min-width: 320px;
+            min-height: 300px;
+        }
+        .ai-panel.hidden { display: none; }
+        .ai-header {
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: move;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .ai-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ai-header-left span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .ai-status-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .ai-status-badge.online {
+            background: rgba(34,197,94,0.15);
+            color: #22c55e;
+        }
+        .ai-status-badge.offline {
+            background: rgba(239,68,68,0.15);
+            color: #ef4444;
+        }
+        .ai-header-btns {
+            display: flex;
+            gap: 6px;
+        }
+        .ai-header-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.08);
+            color: #aaa;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .ai-header-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
+        /* AI聊天区 */
+        .ai-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+        }
+        .ai-msg {
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-msg.user {
+            align-items: flex-end;
+        }
+        .ai-msg.assistant {
+            align-items: flex-start;
+        }
+        .ai-msg-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .ai-msg-content {
+            max-width: 90%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+        .ai-msg.user .ai-msg-content {
+            background: rgba(74,158,255,0.2);
+            border: 1px solid rgba(74,158,255,0.3);
+            color: #c8e0ff;
+        }
+        .ai-msg.assistant .ai-msg-content {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #d0d0d0;
+        }
+        .ai-msg.error .ai-msg-content {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #f87171;
+        }
+        .ai-msg-content code {
+            background: rgba(0,0,0,0.3);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .ai-msg-content pre {
+            background: rgba(0,0,0,0.3);
+            padding: 8px 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 6px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 12px;
+            position: relative;
+        }
+        .ai-msg-content .code-block-wrapper {
+            position: relative;
+            margin: 8px 0;
+        }
+        .ai-msg-content .code-block-wrapper pre {
+            margin: 0;
+            padding-bottom: 36px;
+        }
+        .ai-msg-content .code-actions {
+            position: absolute;
+            bottom: 4px;
+            left: 8px;
+            display: flex;
+            gap: 6px;
+        }
+        .ai-msg-content .code-exec-btn {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .ai-msg-content .code-exec-btn.execute {
+            background: #22c55e;
+            color: #fff;
+        }
+        .ai-msg-content .code-exec-btn.execute:hover {
+            background: #16a34a;
+        }
+        .ai-msg-content .code-exec-btn.copy {
+            background: rgba(255,255,255,0.1);
+            color: #aaa;
+        }
+        .ai-msg-content .code-exec-btn.copy:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .ai-msg-content .code-exec-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .ai-msg-content .exec-status {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+        .ai-msg-content .exec-status.running {
+            background: rgba(74,158,255,0.2);
+            color: #4a9eff;
+        }
+        .ai-msg-content .exec-status.success {
+            background: rgba(34,197,94,0.2);
+            color: #22c55e;
+        }
+        .ai-msg-content .exec-status.error {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+        }
+        .ai-msg-content .analyze-result-btn {
+            margin-top: 8px;
+            padding: 4px 10px;
+            border: 1px solid #f59e0b;
+            border-radius: 4px;
+            background: transparent;
+            color: #f59e0b;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .ai-msg-content .analyze-result-btn:hover {
+            background: rgba(245,158,11,0.15);
+        }
+
+        /* AI输入区 */
+        .ai-input-area {
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .ai-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.08);
+            color: #e0e0e0;
+            font-size: 13px;
+            outline: none;
+            resize: none;
+            font-family: inherit;
+            min-height: 40px;
+            max-height: 80px;
+        }
+        .ai-input:focus {
+            border-color: #4a9eff;
+        }
+        .ai-send-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #4a9eff;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            align-self: flex-end;
+        }
+        .ai-send-btn:hover { opacity: 0.85; }
+        .ai-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* AI快捷操作 */
+        .ai-quick-actions {
+            padding: 6px 16px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .quick-action-btn {
+            padding: 4px 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            background: transparent;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-action-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #ccc;
+        }
+
+        /* resize handle */
+        .ai-resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            cursor: nwse-resize;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal {
+            background: #1e2a4a;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            padding: 28px;
+            width: 440px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .modal .form-group {
+            margin-bottom: 14px;
+        }
+        .modal .form-group label {
+            display: block;
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .modal .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.08);
+            color: #e0e0e0;
+            font-size: 14px;
+            outline: none;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .modal-btn {
+            padding: 8px 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .modal-btn.primary {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: #fff;
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <!-- 设备列表面板 -->
+    <div class="devices-panel" id="devices-panel">
+        <h3>我的设备</h3>
+        <div id="devices-list">
+            <!-- 设备列表将通过JS动态加载 -->
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <div class="navbar">
+        <div class="navbar-brand">网络设备管理平台</div>
+        <div class="navbar-actions">
+            <button class="nav-btn" id="btn-toggle-devices" onclick="toggleDevicesPanel()">设备列表</button>
+            <button class="nav-btn" id="btn-toggle-ai" onclick="toggleAIPanel()">AI助手</button>
+            <button class="nav-btn" onclick="window.open('/files','_blank')">文件管理</button>
+            {% if user.role == 'admin' %}
+            <button class="nav-btn" onclick="window.open('/ai/config','_blank')">AI配置</button>
+            {% endif %}
+            <button class="nav-btn" onclick="window.open('/devices','_blank')">设备管理</button>
+            <button class="nav-btn" onclick="showPasswordModal()">修改密码</button>
+            <span class="user-info">{{ user.display_name }}</span>
+            <button class="nav-btn" onclick="location.href='/logout'">退出</button>
+        </div>
+    </div>
+
+    <!-- 连接面板 -->
+    <div class="conn-panel">
+        <select id="conn-type" onchange="toggleConnFields()">
+            <option value="local">本地终端</option>
+            <option value="ssh">SSH</option>
+        </select>
+        <div class="ssh-fields" id="ssh-fields">
+            <input type="text" id="conn-host" placeholder="主机地址">
+            <input type="text" id="conn-port" class="port-input" placeholder="端口" value="22">
+            <input type="text" id="conn-user" placeholder="用户名">
+            <input type="password" id="conn-pass" class="pwd-input" placeholder="密码">
+        </div>
+        <button class="conn-btn connect" id="btn-connect" onclick="connectTerminal()">连接</button>
+        <button class="conn-btn disconnect" id="btn-disconnect" onclick="disconnectTerminal()" style="display:none">断开</button>
+        <div class="conn-status">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">未连接</span>
+        </div>
+    </div>
+
+    <!-- 终端 -->
+    <div class="terminal-wrapper">
+        <div id="terminal-container"></div>
+    </div>
+
+    <!-- AI助手窗口 -->
+    <div class="ai-panel" id="ai-panel">
+        <div class="ai-header" id="ai-header">
+            <div class="ai-header-left">
+                <span>AI 助手</span>
+                <span class="ai-status-badge {{ 'online' if ai_available else 'offline' }}" id="ai-status-badge">
+                    {{ '已连接' if ai_available else '未配置' }}
+                </span>
+            </div>
+            <div class="ai-header-btns">
+                <button class="ai-header-btn" id="agent-mode-btn" onclick="toggleAgentMode()" title="切换Agent模式" style="background:rgba(34,197,94,0.2);color:#22c55e;">Agent</button>
+                <button class="ai-header-btn" onclick="clearAIChat()" title="清空对话">&#x1f5d1;</button>
+                <button class="ai-header-btn" onclick="toggleAIPanel()" title="关闭">&#x2715;</button>
+            </div>
+        </div>
+        <div class="ai-messages" id="ai-messages">
+            <div class="ai-msg assistant">
+                <div class="ai-msg-label">AI助手</div>
+                <div class="ai-msg-content">你好！我是网络设备管理AI助手。
+
+**Agent模式已开启** - 你可以用自然语言描述需求，我会：
+- 自动规划执行步骤
+- 生成可执行命令
+- 分析执行结果并优化
+
+示例指令：
+- "帮我安装nginx并配置反向代理"
+- "查看系统负载，如果CPU超过80%就清理缓存"
+- "找出占用磁盘最大的10个文件"
+
+{% if not ai_available %}⚠️ AI服务尚未配置，请管理员在AI配置页面完成设置。{% endif %}</div>
+            </div>
+        </div>
+        <div class="ai-quick-actions">
+            <button class="quick-action-btn" onclick="quickAction('analyze')">分析终端输出</button>
+            <button class="quick-action-btn" onclick="quickAction('install')">安装软件</button>
+            <button class="quick-action-btn" onclick="quickAction('diagnose')">故障诊断</button>
+            <button class="quick-action-btn" onclick="quickAction('optimize')">系统优化</button>
+        </div>
+        <div class="ai-input-area">
+            <textarea class="ai-input" id="ai-input" placeholder="输入自然语言指令，如：帮我安装docker..." rows="1"
+                      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage()}"></textarea>
+            <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIMessage()">发送</button>
+        </div>
+        <div class="ai-resize-handle" id="ai-resize-handle"></div>
+    </div>
+
+    <!-- 修改密码模态框 -->
+    <div class="modal-overlay hidden" id="password-modal">
+        <div class="modal">
+            <h3>修改密码</h3>
+            <div class="form-group">
+                <label>原密码</label>
+                <input type="password" id="old-password">
+            </div>
+            <div class="form-group">
+                <label>新密码</label>
+                <input type="password" id="new-password">
+            </div>
+            <div class="form-group">
+                <label>确认新密码</label>
+                <input type="password" id="confirm-password">
+            </div>
+            <div class="modal-btns">
+                <button class="modal-btn" onclick="hidePasswordModal()">取消</button>
+                <button class="modal-btn primary" onclick="changePassword()">确认修改</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.5.4/dist/socket.io.min.js"></script>
+    <script>
+        // ========== 全局变量 ==========
+        let term = null;
+        let fitAddon = null;
+        let socket = null;
+        let connected = false;
+        let terminalBuffer = [];       // 终端输出缓冲区(给AI分析用)
+        const MAX_BUFFER_LINES = 200;  // 缓冲区最大行数
+
+        // ========== 设备管理 ==========
+        function toggleDevicesPanel() {
+            var panel = document.getElementById('devices-panel');
+            var wrapper = document.querySelector('.terminal-wrapper');
+            panel.classList.toggle('show');
+            wrapper.classList.toggle('with-devices');
+            // 重新fit终端
+            setTimeout(function() { try { fitAddon.fit(); } catch(e) {} }, 100);
+            
+            if (panel.classList.contains('show')) {
+                loadDeviceList();
+            }
+        }
+
+        function loadDeviceList() {
+            fetch('/api/devices')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    renderDeviceList(data.devices || []);
+                })
+                .catch(function(err) {
+                    console.error('加载设备列表失败:', err);
+                });
+        }
+
+        function renderDeviceList(devices) {
+            var container = document.getElementById('devices-list');
+            if (devices.length === 0) {
+                container.innerHTML = '<p style="color:#666;font-size:13px;">暂无设备，请到<a href="/devices" target="_blank" style="color:#4a9eff">设备管理</a>页面添加</p>';
+                return;
+            }
+
+            container.innerHTML = devices.map(function(device) {
+                return `
+                    <div class="device-item">
+                        <div class="device-item-header">
+                            <div class="device-name">${escapeHtml(device.name)}</div>
+                            ${device.group ? `<div class="device-group">${escapeHtml(device.group)}</div>` : ''}
+                        </div>
+                        <div class="device-host">${escapeHtml(device.host)}:${device.port}</div>
+                        <button class="device-connect-btn" onclick="connectToDevice('${device.id}')">连接</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function connectToDevice(deviceId) {
+            if (connected) {
+                if (!confirm('当前已有连接，是否断开并连接新设备？')) {
+                    return;
+                }
+                disconnectTerminal();
+            }
+
+            // 通过设备ID连接
+            var connData = {
+                type: 'ssh',
+                device_id: deviceId
+            };
+
+            setStatus('connecting', '连接中...');
+            term.clear();
+
+            if (!socket || !socket.connected) {
+                initSocket();
+                socket.on('connect', function() {
+                    socket.emit('terminal_connect', connData);
+                });
+            } else {
+                socket.emit('terminal_connect', connData);
+            }
+
+            connected = true;
+            updateConnButtons();
+            setStatus('connected', '已连接');
+
+            setTimeout(function() {
+                try {
+                    fitAddon.fit();
+                    socket.emit('terminal_resize', { rows: term.rows, cols: term.cols });
+                } catch(e) {}
+                term.focus();
+            }, 200);
+        }
+
+        // 工具函数
+        function escapeHtml(text) {
+            var map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // ========== 终端初始化 ==========
+        function initTerminal() {
+            term = new Terminal({
+                cursorBlink: true,
+                fontSize: 14,
+                fontFamily: "'Consolas', 'Courier New', monospace",
+                theme: {
+                    background: '#0d1117',
+                    foreground: '#c9d1d9',
+                    cursor: '#58a6ff',
+                    selectionBackground: 'rgba(56,139,253,0.3)',
+                    black: '#0d1117',
+                    red: '#ff7b72',
+                    green: '#3fb950',
+                    yellow: '#d29922',
+                    blue: '#58a6ff',
+                    magenta: '#bc8cff',
+                    cyan: '#39d2c0',
+                    white: '#c9d1d9'
+                },
+                scrollback: 5000,
+                rendererType: 'dom',
+                convertEol: false,
+                allowProposedApi: true
+            });
+
+            fitAddon = new FitAddon.FitAddon();
+            term.loadAddon(fitAddon);
+
+            var container = document.getElementById('terminal-container');
+            term.open(container);
+
+            // 初始fit + 延迟再fit一次确保尺寸正确
+            try { fitAddon.fit(); } catch(e) {}
+            setTimeout(function() {
+                try { fitAddon.fit(); } catch(e) {}
+            }, 200);
+
+            term.writeln('\x1b[1;36m欢迎使用网络设备管理平台\x1b[0m');
+            term.writeln('\x1b[90m请选择连接方式后点击"连接"按钮\x1b[0m');
+            term.writeln('');
+
+            // 终端输入
+            term.onData(function(data) {
+                if (connected && socket) {
+                    socket.emit('terminal_input', { data: data });
+                }
+            });
+
+            // 输入时也滚动到底部
+            term.onWriteParsed(function() {
+                term.scrollToBottom();
+            });
+
+            // 终端大小变化
+            window.addEventListener('resize', function() {
+                try {
+                    fitAddon.fit();
+                    if (connected && socket) {
+                        socket.emit('terminal_resize', { rows: term.rows, cols: term.cols });
+                    }
+                } catch(e) {}
+            });
+        }
+
+        // ========== Socket连接 ==========
+        function initSocket() {
+            socket = io({ transports: ['websocket', 'polling'] });
+
+            socket.on('connect', function() {
+                console.log('Socket.IO已连接');
+            });
+
+            socket.on('disconnect', function() {
+                if (connected) {
+                    setStatus('disconnected', '连接断开');
+                    connected = false;
+                    updateConnButtons();
+                }
+            });
+
+            socket.on('terminal_output', function(data) {
+                if (term && data.data) {
+                    term.write(data.data);
+                    // 写入后自动滚动到底部
+                    term.scrollToBottom();
+                    // 缓冲输出给AI分析
+                    bufferOutput(data.data);
+                }
+            });
+        }
+
+        // ========== 连接控制 ==========
+        function connectTerminal() {
+            if (connected) return;
+
+            var connType = document.getElementById('conn-type').value;
+            var connData = { type: connType };
+
+            if (connType === 'ssh') {
+                connData.host = document.getElementById('conn-host').value.trim();
+                connData.port = document.getElementById('conn-port').value.trim() || '22';
+                connData.username = document.getElementById('conn-user').value.trim();
+                connData.password = document.getElementById('conn-pass').value;
+
+                if (!connData.host) {
+                    alert('请输入主机地址');
+                    return;
+                }
+                if (!connData.username) {
+                    alert('请输入用户名');
+                    return;
+                }
+            }
+
+            setStatus('connecting', '连接中...');
+            term.clear();
+
+            if (!socket || !socket.connected) {
+                initSocket();
+                socket.on('connect', function() {
+                    socket.emit('terminal_connect', connData);
+                });
+            } else {
+                socket.emit('terminal_connect', connData);
+            }
+
+            connected = true;
+            updateConnButtons();
+            setStatus('connected', '已连接');
+
+            // fit终端并发送大小
+            setTimeout(function() {
+                try {
+                    fitAddon.fit();
+                    socket.emit('terminal_resize', { rows: term.rows, cols: term.cols });
+                } catch(e) {}
+                term.focus();
+            }, 200);
+            setTimeout(function() {
+                try {
+                    fitAddon.fit();
+                    socket.emit('terminal_resize', { rows: term.rows, cols: term.cols });
+                } catch(e) {}
+            }, 600);
+        }
+
+        function disconnectTerminal() {
+            if (socket) {
+                socket.emit('terminal_disconnect');
+            }
+            connected = false;
+            updateConnButtons();
+            setStatus('disconnected', '已断开');
+            term.writeln('\r\n\x1b[90m[已断开连接]\x1b[0m');
+        }
+
+        function toggleConnFields() {
+            var type = document.getElementById('conn-type').value;
+            var fields = document.getElementById('ssh-fields');
+            if (type === 'ssh') {
+                fields.classList.add('show');
+            } else {
+                fields.classList.remove('show');
+            }
+        }
+
+        function updateConnButtons() {
+            document.getElementById('btn-connect').style.display = connected ? 'none' : '';
+            document.getElementById('btn-disconnect').style.display = connected ? '' : 'none';
+        }
+
+        function setStatus(state, text) {
+            var dot = document.getElementById('status-dot');
+            document.getElementById('status-text').textContent = text;
+            dot.className = 'status-dot';
+            if (state === 'connected') dot.classList.add('connected');
+            else if (state === 'connecting') dot.classList.add('connecting');
+        }
+
+        // ========== 输出缓冲（给AI用） ==========
+        function bufferOutput(data) {
+            // 简易处理：按换行符分行
+            var lines = data.split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].replace(/\r/g, '').replace(/\x1b\[[0-9;]*[a-zA-Z]/g, '');
+                if (line.trim()) {
+                    terminalBuffer.push(line);
+                }
+            }
+            // 限制缓冲区大小
+            while (terminalBuffer.length > MAX_BUFFER_LINES) {
+                terminalBuffer.shift();
+            }
+            // 检测错误关键词
+            detectErrors(data);
+        }
+
+        function getTerminalContext(lineCount) {
+            lineCount = lineCount || 50;
+            return terminalBuffer.slice(-lineCount).join('\n');
+        }
+
+        // ========== 错误检测 ==========
+        var errorPatterns = [
+            /error[:\s]/i,
+            /failed/i,
+            /denied/i,
+            /not found/i,
+            /permission denied/i,
+            /command not found/i,
+            /no such file/i,
+            /connection refused/i,
+            /timeout/i,
+            /unreachable/i,
+            /syntax error/i,
+            /segmentation fault/i,
+            /invalid/i,
+            /cannot/i,
+            /unable to/i
+        ];
+
+        var lastErrorTime = 0;
+
+        function detectErrors(data) {
+            var now = Date.now();
+            // 防止频繁触发（5秒内只触发一次）
+            if (now - lastErrorTime < 5000) return;
+
+            var plainText = data.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, '');
+
+            for (var i = 0; i < errorPatterns.length; i++) {
+                if (errorPatterns[i].test(plainText)) {
+                    lastErrorTime = now;
+                    showErrorDetection(plainText);
+                    break;
+                }
+            }
+        }
+
+        function showErrorDetection(errorText) {
+            // 在AI窗口中显示检测到错误的提示
+            var panel = document.getElementById('ai-panel');
+            if (panel.classList.contains('hidden')) return;
+
+            var msgDiv = document.createElement('div');
+            msgDiv.className = 'ai-msg assistant';
+
+            var label = document.createElement('div');
+            label.className = 'ai-msg-label';
+            label.textContent = '错误检测';
+
+            var content = document.createElement('div');
+            content.className = 'ai-msg-content';
+            content.style.borderColor = 'rgba(245,158,11,0.4)';
+            content.style.background = 'rgba(245,158,11,0.1)';
+            content.textContent = '检测到可能的错误输出，点击下方按钮让AI分析：';
+
+            var analyzeBtn = document.createElement('button');
+            analyzeBtn.className = 'quick-action-btn';
+            analyzeBtn.style.marginTop = '8px';
+            analyzeBtn.style.display = 'block';
+            analyzeBtn.textContent = '分析此错误';
+            analyzeBtn.onclick = function() {
+                quickAction('analyze');
+            };
+            content.appendChild(analyzeBtn);
+
+            msgDiv.appendChild(label);
+            msgDiv.appendChild(content);
+
+            var messages = document.getElementById('ai-messages');
+            messages.appendChild(msgDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // ========== AI助手 ==========
+        var agentMode = true;  // 默认开启Agent模式
+        var conversationHistory = [];  // 对话历史
+
+        function toggleAIPanel() {
+            var panel = document.getElementById('ai-panel');
+            panel.classList.toggle('hidden');
+            // 重新fit终端
+            setTimeout(function() { try { fitAddon.fit(); } catch(e) {} }, 100);
+        }
+
+        function toggleAgentMode() {
+            agentMode = !agentMode;
+            var btn = document.getElementById('agent-mode-btn');
+            if (agentMode) {
+                btn.style.background = 'rgba(34,197,94,0.2)';
+                btn.style.color = '#22c55e';
+                btn.title = 'Agent模式已开启';
+            } else {
+                btn.style.background = 'rgba(255,255,255,0.08)';
+                btn.style.color = '#aaa';
+                btn.title = 'Agent模式已关闭';
+            }
+        }
+
+        function clearAIChat() {
+            var messages = document.getElementById('ai-messages');
+            messages.innerHTML = '';
+            conversationHistory = [];  // 清空对话历史
+            addAIMessage('assistant', '对话已清空。有什么可以帮你的？\n\n**Agent模式**：用自然语言描述需求，我会规划并生成可执行命令。');
+        }
+
+        function addAIMessage(role, content) {
+            var messages = document.getElementById('ai-messages');
+            var msgDiv = document.createElement('div');
+            msgDiv.className = 'ai-msg ' + role;
+
+            var label = document.createElement('div');
+            label.className = 'ai-msg-label';
+            label.textContent = role === 'user' ? '你' : 'AI助手';
+
+            var contentDiv = document.createElement('div');
+            contentDiv.className = 'ai-msg-content';
+
+            if (role === 'assistant') {
+                // 解析AI响应，提取代码块并添加执行按钮
+                var rendered = renderAIContent(content);
+                contentDiv.innerHTML = rendered;
+
+                // 绑定执行按钮事件
+                contentDiv.querySelectorAll('.code-exec-btn.execute').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var wrapper = this.closest('.code-block-wrapper');
+                        var code = wrapper.querySelector('pre').textContent;
+                        executeCommand(code, wrapper);
+                    });
+                });
+
+                // 绑定复制按钮事件
+                contentDiv.querySelectorAll('.code-exec-btn.copy').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var wrapper = this.closest('.code-block-wrapper');
+                        var code = wrapper.querySelector('pre').textContent;
+                        copyToClipboard(code, this);
+                    });
+                });
+
+                // 绑定分析结果按钮事件
+                contentDiv.querySelectorAll('.analyze-result-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var output = this.dataset.output;
+                        analyzeExecutionResult(output);
+                    });
+                });
+            } else {
+                // 用户消息，简单渲染
+                var rendered = content
+                    .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
+                    .replace(/`([^`]+)`/g, '<code>$1</code>')
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+                contentDiv.innerHTML = rendered;
+            }
+
+            msgDiv.appendChild(label);
+            msgDiv.appendChild(contentDiv);
+            messages.appendChild(msgDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // 渲染AI内容，识别代码块并添加执行按钮
+        function renderAIContent(content) {
+            var codeBlockIndex = 0;
+
+            // 处理代码块 ```code```
+            var rendered = content.replace(/```(\w*)\n?([\s\S]*?)```/g, function(match, lang, code) {
+                var blockId = 'code-block-' + (++codeBlockIndex);
+                var trimmedCode = code.trim();
+                // 判断是否是可执行命令（shell/bash/python等）
+                var isExecutable = !lang || lang === '' ||
+                                   lang === 'bash' || lang === 'sh' || lang === 'shell' ||
+                                   lang === 'python' || lang === 'py' ||
+                                   lang === 'javascript' || lang === 'js' ||
+                                   lang === 'perl' || lang === 'ruby';
+
+                // 检查是否是多行脚本
+                var isMultiLine = trimmedCode.split('\n').length > 1;
+
+                var html = '<div class="code-block-wrapper" id="' + blockId + '">';
+                html += '<pre>' + escapeHtml(trimmedCode) + '</pre>';
+                html += '<div class="code-actions">';
+                if (isExecutable) {
+                    html += '<button class="code-exec-btn execute" title="在终端执行此命令">执行</button>';
+                }
+                html += '<button class="code-exec-btn copy" title="复制到剪贴板">复制</button>';
+                html += '</div>';
+                html += '</div>';
+                return html;
+            });
+
+            // 处理行内代码（单行命令也添加执行按钮）
+            rendered = rendered.replace(/(?<!<pre[^>]*>)`([^`\n]+)`(?!<\/pre>)/g, function(match, code) {
+                var blockId = 'inline-code-' + (++codeBlockIndex);
+                var trimmedCode = code.trim();
+                // 单行命令通常都是可执行的
+                var html = '<span class="code-block-wrapper inline" id="' + blockId + '" style="display:inline-flex;align-items:center;gap:4px;">';
+                html += '<code>' + escapeHtml(trimmedCode) + '</code>';
+                html += '<button class="code-exec-btn execute" style="padding:1px 6px;font-size:10px;" title="执行">执行</button>';
+                html += '</span>';
+                return html;
+            });
+
+            // 其他Markdown格式
+            rendered = rendered
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            return rendered;
+        }
+
+        // 执行命令
+        function executeCommand(command, wrapperElement) {
+            if (!connected) {
+                alert('请先连接终端');
+                return;
+            }
+
+            // 清空之前的执行状态
+            var existingStatus = wrapperElement.querySelector('.exec-status');
+            if (existingStatus) existingStatus.remove();
+            var existingAnalyze = wrapperElement.querySelector('.analyze-result-btn');
+            if (existingAnalyze) existingAnalyze.remove();
+
+            // 显示执行中状态
+            var statusDiv = document.createElement('div');
+            statusDiv.className = 'exec-status running';
+            statusDiv.textContent = '正在执行...';
+            wrapperElement.appendChild(statusDiv);
+
+            // 禁用执行按钮
+            var execBtn = wrapperElement.querySelector('.code-exec-btn.execute');
+            if (execBtn) execBtn.disabled = true;
+
+            // 清空缓冲区，准备收集输出
+            var executionBuffer = [];
+            var originalBuffer = terminalBuffer.slice(); // 保存原有缓冲
+
+            // 发送命令到终端
+            socket.emit('terminal_input', { data: command + '\n' });
+
+            // 收集命令输出（等待一段时间后收集结果）
+            var collectTimeout = null;
+            var maxWaitTime = 30000; // 最大等待30秒
+            var startTime = Date.now();
+
+            function collectOutput() {
+                // 检查是否超时
+                if (Date.now() - startTime > maxWaitTime) {
+                    finishExecution('命令执行超时', 'error');
+                    return;
+                }
+
+                // 获取新的输出
+                var newOutput = terminalBuffer.slice(originalBuffer.length);
+                if (newOutput.length > 0) {
+                    executionBuffer = newOutput;
+                }
+
+                // 等待一段时间让命令完成
+                collectTimeout = setTimeout(function() {
+                    // 检查是否还有新输出
+                    var currentLength = terminalBuffer.length;
+                    if (currentLength === originalBuffer.length + executionBuffer.length) {
+                        // 没有新输出了，认为命令执行完成
+                        finishExecution(executionBuffer.join('\n'), 'success');
+                    } else {
+                        // 继续等待
+                        collectOutput();
+                    }
+                }, 1500);
+            }
+
+            function finishExecution(output, status) {
+                if (collectTimeout) clearTimeout(collectTimeout);
+
+                statusDiv.className = 'exec-status ' + status;
+                if (status === 'success') {
+                    statusDiv.textContent = '执行完成';
+                } else {
+                    statusDiv.textContent = '执行超时/异常';
+                }
+
+                // 重新启用执行按钮
+                if (execBtn) execBtn.disabled = false;
+
+                // 添加分析结果按钮
+                if (output && output.trim()) {
+                    var analyzeBtn = document.createElement('button');
+                    analyzeBtn.className = 'analyze-result-btn';
+                    analyzeBtn.textContent = '让AI分析执行结果';
+                    analyzeBtn.dataset.output = output;
+                    analyzeBtn.onclick = function() {
+                        analyzeExecutionResult(this.dataset.output);
+                    };
+                    wrapperElement.appendChild(analyzeBtn);
+                }
+            }
+
+            // 开始收集输出
+            setTimeout(collectOutput, 500);
+        }
+
+        // 分析执行结果
+        function analyzeExecutionResult(output) {
+            var message = '请分析以下命令执行结果，判断是否成功，如有问题请给出解决方案：\n\n```\n' + output + '\n```';
+            addAIMessage('user', '请分析刚才命令的执行结果');
+
+            var sendBtn = document.getElementById('ai-send-btn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = '...';
+
+            fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, context: '' })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    addAIMessage('error', data.error);
+                } else {
+                    addAIMessage('assistant', data.response || '无响应');
+                }
+            })
+            .catch(function(err) {
+                addAIMessage('error', '请求失败: ' + err.message);
+            })
+            .finally(function() {
+                sendBtn.disabled = false;
+                sendBtn.textContent = '发送';
+            });
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(function() {
+                var originalText = btn.textContent;
+                btn.textContent = '已复制';
+                setTimeout(function() {
+                    btn.textContent = originalText;
+                }, 1500);
+            }).catch(function(err) {
+                console.error('复制失败:', err);
+            });
+        }
+
+        function sendAIMessage() {
+            var input = document.getElementById('ai-input');
+            var message = input.value.trim();
+            if (!message) return;
+
+            input.value = '';
+            addAIMessage('user', message);
+
+            var sendBtn = document.getElementById('ai-send-btn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = '...';
+
+            var context = getTerminalContext(50);
+
+            // 使用Agent API或普通聊天API
+            var apiUrl = agentMode ? '/api/ai/agent' : '/api/ai/chat';
+            var requestBody = {
+                message: message,
+                context: context,
+                history: conversationHistory.slice(-6)  // 保留最近3轮对话
+            };
+
+            // 添加到对话历史
+            conversationHistory.push({role: 'user', content: message});
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    addAIMessage('error', data.error);
+                } else {
+                    var response = data.response || '无响应';
+                    addAIMessage('assistant', response);
+                    // 添加到对话历史
+                    conversationHistory.push({role: 'assistant', content: response});
+                }
+            })
+            .catch(function(err) {
+                addAIMessage('error', '请求失败: ' + err.message);
+            })
+            .finally(function() {
+                sendBtn.disabled = false;
+                sendBtn.textContent = '发送';
+            });
+        }
+
+        function quickAction(action) {
+            var message = '';
+            var context = getTerminalContext(80);
+
+            switch(action) {
+                case 'analyze':
+                    if (!context) {
+                        addAIMessage('error', '终端暂无输出内容可分析');
+                        return;
+                    }
+                    message = '请分析以下终端输出，指出其中的错误或问题，并给出解决方案：\n\n```\n' + context + '\n```';
+                    break;
+                case 'install':
+                    message = '我想安装常用软件。请告诉我：\n1. 当前系统类型和版本\n2. 可用的包管理器\n3. 常用软件安装命令（nginx, docker, nodejs, python3等）';
+                    break;
+                case 'diagnose':
+                    message = '请帮我诊断系统状态，生成以下检查命令：\n1. CPU和内存使用情况\n2. 磁盘空间使用\n3. 网络连接状态\n4. 系统日志中的错误\n5. 进程状态';
+                    break;
+                case 'optimize':
+                    message = '请分析并优化系统性能：\n1. 检查系统负载\n2. 清理缓存和临时文件\n3. 优化内存使用\n4. 检查并关闭不必要的服务';
+                    break;
+                case 'network':
+                    message = '请提供常用的网络诊断命令，包括ping、traceroute、netstat、ss、ip addr等的使用方法和常见用例';
+                    break;
+                case 'sysinfo':
+                    message = '请提供查看Linux系统信息的常用命令，包括CPU、内存、磁盘、网络等';
+                    break;
+                default:
+                    return;
+            }
+
+            addAIMessage('user', message);
+            conversationHistory.push({role: 'user', content: message});
+
+            var sendBtn = document.getElementById('ai-send-btn');
+            sendBtn.disabled = true;
+
+            var apiUrl = agentMode ? '/api/ai/agent' : '/api/ai/chat';
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, context: context, history: conversationHistory.slice(-6) })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    addAIMessage('error', data.error);
+                } else {
+                    var response = data.response || '无响应';
+                    addAIMessage('assistant', response);
+                    conversationHistory.push({role: 'assistant', content: response});
+                }
+            })
+            .catch(function(err) {
+                addAIMessage('error', '请求失败: ' + err.message);
+            })
+            .finally(function() {
+                sendBtn.disabled = false;
+            });
+        }
+
+        // ========== AI窗口拖拽 ==========
+        (function() {
+            var panel = document.getElementById('ai-panel');
+            var header = document.getElementById('ai-header');
+            var isDragging = false;
+            var startX, startY, origLeft, origTop;
+
+            header.addEventListener('mousedown', function(e) {
+                if (e.target.tagName === 'BUTTON') return;
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                var rect = panel.getBoundingClientRect();
+                origLeft = rect.left;
+                origTop = rect.top;
+                panel.style.transition = 'none';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                var dx = e.clientX - startX;
+                var dy = e.clientY - startY;
+                var newLeft = origLeft + dx;
+                var newTop = origTop + dy;
+
+                // 边界限制
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 100));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
+
+                panel.style.left = newLeft + 'px';
+                panel.style.top = newTop + 'px';
+                panel.style.right = 'auto';
+            });
+
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+                panel.style.transition = '';
+            });
+
+            // 调整大小
+            var resizeHandle = document.getElementById('ai-resize-handle');
+            var isResizing = false;
+            var resizeStartX, resizeStartY, origW, origH;
+
+            resizeHandle.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                resizeStartX = e.clientX;
+                resizeStartY = e.clientY;
+                origW = panel.offsetWidth;
+                origH = panel.offsetHeight;
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+                var dw = e.clientX - resizeStartX;
+                var dh = e.clientY - resizeStartY;
+                panel.style.width = Math.max(320, origW + dw) + 'px';
+                panel.style.height = Math.max(300, origH + dh) + 'px';
+            });
+
+            document.addEventListener('mouseup', function() {
+                isResizing = false;
+            });
+        })();
+
+        // ========== 修改密码 ==========
+        function showPasswordModal() {
+            document.getElementById('password-modal').classList.remove('hidden');
+        }
+
+        function hidePasswordModal() {
+            document.getElementById('password-modal').classList.add('hidden');
+            document.getElementById('old-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+        }
+
+        function changePassword() {
+            var oldPwd = document.getElementById('old-password').value;
+            var newPwd = document.getElementById('new-password').value;
+            var confirmPwd = document.getElementById('confirm-password').value;
+
+            if (!oldPwd || !newPwd) {
+                alert('请填写完整');
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                alert('两次输入的新密码不一致');
+                return;
+            }
+            if (newPwd.length < 6) {
+                alert('新密码至少6个字符');
+                return;
+            }
+
+            fetch('/api/user/change_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ old_password: oldPwd, new_password: newPwd })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert('密码修改成功');
+                    hidePasswordModal();
+                }
+            })
+            .catch(function(err) {
+                alert('请求失败');
+            });
+        }
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            initTerminal();
+            initSocket();
+            
+            // 检查是否有待连接的设备
+            var deviceId = localStorage.getItem('connect_device_id');
+            if (deviceId) {
+                localStorage.removeItem('connect_device_id');
+                setTimeout(function() {
+                    connectToDevice(deviceId);
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

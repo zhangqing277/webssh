@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络设备管理平台 - AI配置</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(22, 33, 62, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 0 20px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .navbar-brand {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        .navbar-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .nav-btn {
+            padding: 6px 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+        .content {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .page-desc {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        /* 提供商选择 */
+        .provider-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .provider-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .provider-card:hover {
+            border-color: rgba(74,158,255,0.3);
+            background: rgba(74,158,255,0.05);
+        }
+        .provider-card.active {
+            border-color: #4a9eff;
+            background: rgba(74,158,255,0.1);
+        }
+        .provider-card h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .provider-card p {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* 配置表单 */
+        .config-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .config-section.hidden { display: none; }
+        .config-section h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #c8e0ff;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.08);
+            color: #e0e0e0;
+            font-size: 14px;
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #4a9eff;
+        }
+        .form-group .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        .form-row .form-group { flex: 1; }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: '';
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle input:checked + .toggle-slider {
+            background: #4a9eff;
+        }
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        .toggle-label {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(255,255,255,0.08); }
+        .btn.primary {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: #fff;
+        }
+        .btn.primary:hover { background: #3b82f6; }
+        .btn.success {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: #fff;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .alert.hidden { display: none; }
+        .alert.success {
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: #4ade80;
+        }
+        .alert.error {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-brand">网络设备管理平台 / AI配置</div>
+        <div class="navbar-actions">
+            <a class="nav-btn" href="javascript:window.close()" onclick="if(window.opener){window.close()}else{location.href='/terminal'}">返回终端</a>
+            <a class="nav-btn" href="/logout">退出</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="page-title">AI服务配置</h2>
+        <p class="page-desc">配置AI服务提供商，启用后可在终端页面使用AI助手功能</p>
+
+        <div class="alert hidden" id="alert-msg"></div>
+
+        <!-- 提供商选择 -->
+        <div class="provider-selector">
+            <div class="provider-card" data-provider="qwen" onclick="selectProvider('qwen')">
+                <h4>阿里云百炼 Qwen</h4>
+                <p>通义千问系列模型，支持中文理解和代码生成</p>
+            </div>
+            <div class="provider-card" data-provider="azure_openai" onclick="selectProvider('azure_openai')">
+                <h4>Azure OpenAI</h4>
+                <p>微软Azure部署的OpenAI模型，企业级服务</p>
+            </div>
+            <div class="provider-card" data-provider="openai_compatible" onclick="selectProvider('openai_compatible')">
+                <h4>OpenAI兼容接口</h4>
+                <p>兼容OpenAI API格式的第三方服务（DeepSeek等）</p>
+            </div>
+        </div>
+
+        <!-- Qwen配置 -->
+        <div class="config-section hidden" id="config-qwen">
+            <h3>阿里云百炼 Qwen 配置</h3>
+            <div class="toggle-group">
+                <label class="toggle">
+                    <input type="checkbox" id="qwen-enabled">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">启用此提供商</span>
+            </div>
+            <div class="form-group">
+                <label>API Key</label>
+                <input type="password" id="qwen-api-key" placeholder="sk-xxxxxxxx">
+                <div class="help-text">在阿里云百炼控制台获取API Key</div>
+            </div>
+            <div class="form-group">
+                <label>模型</label>
+                <select id="qwen-model">
+                    <option value="qwen-turbo">qwen-turbo (快速)</option>
+                    <option value="qwen-plus">qwen-plus (增强)</option>
+                    <option value="qwen-max">qwen-max (最强)</option>
+                    <option value="qwen-long">qwen-long (长文本)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>API地址</label>
+                <input type="text" id="qwen-base-url" value="https://dashscope.aliyuncs.com/compatible-mode/v1">
+                <div class="help-text">默认使用官方地址，一般无需修改</div>
+            </div>
+        </div>
+
+        <!-- Azure OpenAI配置 -->
+        <div class="config-section hidden" id="config-azure_openai">
+            <h3>Azure OpenAI 配置</h3>
+            <div class="toggle-group">
+                <label class="toggle">
+                    <input type="checkbox" id="azure-enabled">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">启用此提供商</span>
+            </div>
+            <div class="form-group">
+                <label>API Key</label>
+                <input type="password" id="azure-api-key" placeholder="Azure API Key">
+            </div>
+            <div class="form-group">
+                <label>终结点 (Endpoint)</label>
+                <input type="text" id="azure-endpoint" placeholder="https://your-resource.openai.azure.com">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>部署名称</label>
+                    <input type="text" id="azure-deployment" placeholder="gpt-4">
+                </div>
+                <div class="form-group">
+                    <label>API版本</label>
+                    <input type="text" id="azure-api-version" value="2024-02-01">
+                </div>
+            </div>
+        </div>
+
+        <!-- OpenAI兼容接口配置 -->
+        <div class="config-section hidden" id="config-openai_compatible">
+            <h3>OpenAI兼容接口配置</h3>
+            <div class="toggle-group">
+                <label class="toggle">
+                    <input type="checkbox" id="compat-enabled">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">启用此提供商</span>
+            </div>
+            <div class="form-group">
+                <label>API Key</label>
+                <input type="password" id="compat-api-key" placeholder="API Key">
+            </div>
+            <div class="form-group">
+                <label>API地址</label>
+                <input type="text" id="compat-base-url" placeholder="https://api.deepseek.com/v1">
+                <div class="help-text">输入服务商提供的API基础地址</div>
+            </div>
+            <div class="form-group">
+                <label>模型名称</label>
+                <input type="text" id="compat-model" placeholder="deepseek-chat">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn primary" onclick="saveConfig()">保存配置</button>
+            <button class="btn success" onclick="testConnection()">测试连接</button>
+        </div>
+    </div>
+
+    <script>
+        var currentProvider = '';
+        var currentConfig = {{ config | tojson }};
+
+        function selectProvider(name) {
+            currentProvider = name;
+
+            // 更新卡片样式
+            var cards = document.querySelectorAll('.provider-card');
+            for (var i = 0; i < cards.length; i++) {
+                cards[i].classList.toggle('active', cards[i].dataset.provider === name);
+            }
+
+            // 显示对应配置
+            var sections = document.querySelectorAll('.config-section');
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].classList.add('hidden');
+            }
+            var target = document.getElementById('config-' + name);
+            if (target) target.classList.remove('hidden');
+        }
+
+        function loadConfig() {
+            if (!currentConfig || !currentConfig.providers) return;
+
+            var active = currentConfig.active_provider || '';
+            if (active) {
+                selectProvider(active);
+            }
+
+            // 加载Qwen配置
+            var qwen = currentConfig.providers.qwen || {};
+            document.getElementById('qwen-enabled').checked = qwen.enabled || false;
+            document.getElementById('qwen-api-key').value = qwen.api_key || '';
+            document.getElementById('qwen-model').value = qwen.model || 'qwen-turbo';
+            document.getElementById('qwen-base-url').value = qwen.base_url || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+
+            // 加载Azure配置
+            var azure = currentConfig.providers.azure_openai || {};
+            document.getElementById('azure-enabled').checked = azure.enabled || false;
+            document.getElementById('azure-api-key').value = azure.api_key || '';
+            document.getElementById('azure-endpoint').value = azure.endpoint || '';
+            document.getElementById('azure-deployment').value = azure.deployment || 'gpt-4';
+            document.getElementById('azure-api-version').value = azure.api_version || '2024-02-01';
+
+            // 加载兼容接口配置
+            var compat = currentConfig.providers.openai_compatible || {};
+            document.getElementById('compat-enabled').checked = compat.enabled || false;
+            document.getElementById('compat-api-key').value = compat.api_key || '';
+            document.getElementById('compat-base-url').value = compat.base_url || '';
+            document.getElementById('compat-model').value = compat.model || '';
+        }
+
+        function buildConfig() {
+            return {
+                active_provider: currentProvider,
+                providers: {
+                    qwen: {
+                        enabled: document.getElementById('qwen-enabled').checked,
+                        api_key: document.getElementById('qwen-api-key').value.trim(),
+                        model: document.getElementById('qwen-model').value,
+                        base_url: document.getElementById('qwen-base-url').value.trim()
+                    },
+                    azure_openai: {
+                        enabled: document.getElementById('azure-enabled').checked,
+                        api_key: document.getElementById('azure-api-key').value.trim(),
+                        endpoint: document.getElementById('azure-endpoint').value.trim(),
+                        deployment: document.getElementById('azure-deployment').value.trim(),
+                        api_version: document.getElementById('azure-api-version').value.trim()
+                    },
+                    openai_compatible: {
+                        enabled: document.getElementById('compat-enabled').checked,
+                        api_key: document.getElementById('compat-api-key').value.trim(),
+                        base_url: document.getElementById('compat-base-url').value.trim(),
+                        model: document.getElementById('compat-model').value.trim()
+                    }
+                }
+            };
+        }
+
+        function showAlert(type, message) {
+            var alert = document.getElementById('alert-msg');
+            alert.className = 'alert ' + type;
+            alert.textContent = message;
+            setTimeout(function() { alert.classList.add('hidden'); }, 5000);
+        }
+
+        function saveConfig() {
+            if (!currentProvider) {
+                showAlert('error', '请先选择一个AI提供商');
+                return;
+            }
+
+            var config = buildConfig();
+
+            fetch('/api/ai/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    showAlert('error', data.error);
+                } else {
+                    showAlert('success', '配置已保存' + (data.ai_available ? '，AI服务已就绪' : ''));
+                }
+            })
+            .catch(function(err) {
+                showAlert('error', '保存失败: ' + err.message);
+            });
+        }
+
+        function testConnection() {
+            showAlert('success', '正在测试连接...');
+
+            fetch('/api/ai/test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    showAlert('error', '测试失败: ' + data.error);
+                } else {
+                    showAlert('success', '连接成功! AI回复: ' + (data.response || '').substring(0, 100));
+                }
+            })
+            .catch(function(err) {
+                showAlert('error', '测试失败: ' + err.message);
+            });
+        }
+
+        // 初始化
+        loadConfig();
+    </script>
+</body>
+</html>

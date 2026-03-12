@@ -1,0 +1,157 @@
+2026-03-11 18:03:16,591 [INFO] ==================================================
+2026-03-11 18:03:16,592 [INFO] 网络设备管理平台启动
+2026-03-11 18:03:16,592 [INFO] 默认账号: admin / admin123
+2026-03-11 18:03:16,592 [INFO] ==================================================
+2026-03-11 18:03:43,065 [INFO] 用户登录成功: admin
+2026-03-11 18:03:53,850 [INFO] 用户登录成功: admin
+2026-03-11 18:04:50,717 [INFO] 用户登录成功: admin
+2026-03-11 18:04:51,188 [INFO] WebSocket连接: EaPaFXygMgH5puz4AAAB
+2026-03-11 18:04:56,519 [INFO] 本地终端已创建: pid=98877 (sid=EaPaFXygMgH5puz4AAAB)
+2026-03-11 18:11:08,230 [INFO] ==================================================
+2026-03-11 18:11:08,231 [INFO] 网络设备管理平台启动
+2026-03-11 18:11:08,231 [INFO] 默认账号: admin / admin123
+2026-03-11 18:11:08,231 [INFO] ==================================================
+2026-03-11 18:13:20,910 [INFO] 用户登录成功: admin
+2026-03-11 18:13:21,025 [INFO] WebSocket连接: f-SwHMuj51z-Jo1RAAAB
+2026-03-11 18:13:22,882 [INFO] 本地终端已创建: pid=101715 (sid=f-SwHMuj51z-Jo1RAAAB)
+2026-03-11 18:13:22,883 [ERROR] PTY读取错误: module 'eventlet' has no attribute 'select'
+2026-03-11 18:13:22,883 [INFO] 终端会话已清理: f-SwHMuj51z-Jo1RAAAB
+2026-03-11 18:13:25,830 [INFO] 本地终端已创建: pid=101740 (sid=f-SwHMuj51z-Jo1RAAAB)
+2026-03-11 18:13:25,831 [ERROR] PTY读取错误: module 'eventlet' has no attribute 'select'
+2026-03-11 18:13:25,831 [INFO] 终端会话已清理: f-SwHMuj51z-Jo1RAAAB
+2026-03-11 18:13:47,208 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-11 18:13:47,395 [INFO] Authentication (password) successful!
+2026-03-11 18:13:47,628 [INFO] SSH连接成功: 192.168.0.147:22 (sid=f-SwHMuj51z-Jo1RAAAB)
+2026-03-11 18:14:05,734 [INFO] 终端会话已清理: f-SwHMuj51z-Jo1RAAAB
+2026-03-11 18:14:05,734 [INFO] WebSocket断开: f-SwHMuj51z-Jo1RAAAB
+2026-03-11 18:14:53,221 [INFO] AI提供商已初始化: qwen
+2026-03-11 18:14:59,626 [INFO] WebSocket连接: qjiSxTL8mB08HXatAAAD
+2026-03-11 18:15:12,702 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-11 18:15:12,876 [INFO] Authentication (password) successful!
+2026-03-11 18:15:13,023 [INFO] SSH连接成功: 192.168.0.147:22 (sid=qjiSxTL8mB08HXatAAAD)
+2026-03-11 18:19:46,190 [INFO] AI提供商已初始化: qwen
+2026-03-11 18:19:46,196 [INFO] ==================================================
+2026-03-11 18:19:46,196 [INFO] 网络设备管理平台启动
+2026-03-11 18:19:46,196 [INFO] 默认账号: admin / admin123
+2026-03-11 18:19:46,196 [INFO] ==================================================
+2026-03-11 18:19:46,733 [INFO] WebSocket连接: UhdWjp5vZGPHrM-4AAAB
+2026-03-11 18:21:52,983 [INFO] 用户登录成功: admin
+2026-03-11 18:22:20,947 [INFO] WebSocket断开: UhdWjp5vZGPHrM-4AAAB
+2026-03-11 18:22:23,642 [INFO] 用户登录成功: admin
+2026-03-11 18:22:23,737 [INFO] WebSocket连接: W3h-khFtBI3d_Ec5AAAD
+2026-03-11 18:22:26,690 [INFO] 本地终端已创建: pid=104467 (sid=W3h-khFtBI3d_Ec5AAAD)
+2026-03-11 18:22:26,691 [ERROR] PTY读取错误: module 'eventlet' has no attribute 'select'
+2026-03-11 18:22:26,691 [INFO] 终端会话已清理: W3h-khFtBI3d_Ec5AAAD
+2026-03-11 18:22:30,099 [INFO] WebSocket断开: W3h-khFtBI3d_Ec5AAAD
+2026-03-11 18:22:51,330 [INFO] WebSocket连接: qMfjy4bRXGRfvAx9AAAF
+2026-03-11 18:22:51,764 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-11 18:22:51,828 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-11 18:22:52,005 [INFO] Authentication (password) successful!
+2026-03-11 18:22:52,173 [INFO] SSH连接成功: 192.168.0.147:22 (sid=qMfjy4bRXGRfvAx9AAAF)
+2026-03-11 18:29:18,923 [INFO] AI提供商已初始化: qwen
+2026-03-11 18:29:18,929 [INFO] ==================================================
+2026-03-11 18:29:18,929 [INFO] 网络设备管理平台启动
+2026-03-11 18:29:18,929 [INFO] 默认账号: admin / admin123
+2026-03-11 18:29:18,929 [INFO] ==================================================
+2026-03-11 18:29:19,358 [INFO] WebSocket连接: e-6BHr9NNU00hQHgAAAB
+2026-03-11 18:31:52,420 [INFO] WebSocket断开: e-6BHr9NNU00hQHgAAAB
+2026-03-11 18:31:54,585 [INFO] 用户登录成功: admin
+2026-03-11 18:31:54,668 [INFO] WebSocket连接: 1sL3sonDvKdxszm5AAAD
+2026-03-11 18:32:00,787 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-11 18:32:00,852 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-11 18:32:01,026 [INFO] Authentication (password) successful!
+2026-03-11 18:32:01,206 [INFO] SSH连接成功: 192.168.0.147:22 (sid=1sL3sonDvKdxszm5AAAD)
+2026-03-11 18:36:54,783 [INFO] 终端会话已清理: 1sL3sonDvKdxszm5AAAD
+2026-03-11 18:36:54,784 [INFO] WebSocket断开: 1sL3sonDvKdxszm5AAAD
+2026-03-11 18:37:01,395 [INFO] WebSocket连接: 1pAgRusr3LunueZoAAAF
+2026-03-11 18:39:05,811 [INFO] AI提供商已初始化: qwen
+2026-03-11 18:39:05,817 [INFO] ==================================================
+2026-03-11 18:39:05,817 [INFO] 网络设备管理平台启动
+2026-03-11 18:39:05,817 [INFO] 默认账号: admin / admin123
+2026-03-11 18:39:05,817 [INFO] ==================================================
+2026-03-11 18:39:06,117 [INFO] WebSocket连接: DkXJ2YzwLZUY7KQlAAAB
+2026-03-11 18:40:49,382 [INFO] WebSocket断开: DkXJ2YzwLZUY7KQlAAAB
+2026-03-11 18:40:51,849 [INFO] 用户登录成功: admin
+2026-03-11 18:40:51,922 [INFO] WebSocket连接: kHSWF5KKva-zUozJAAAD
+2026-03-11 18:40:56,726 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-11 18:40:56,791 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-11 18:40:56,962 [INFO] Authentication (password) successful!
+2026-03-11 18:40:57,110 [INFO] SSH连接成功: 192.168.0.147:22 (sid=kHSWF5KKva-zUozJAAAD)
+2026-03-11 18:41:45,625 [INFO] 终端会话已清理: kHSWF5KKva-zUozJAAAD
+2026-03-11 18:41:45,625 [INFO] WebSocket断开: kHSWF5KKva-zUozJAAAD
+2026-03-11 18:41:45,660 [INFO] 用户登出: admin
+2026-03-11 18:42:14,268 [INFO] 用户登录成功: admin
+2026-03-11 18:42:14,688 [INFO] WebSocket连接: CvUPJdTlMCzvBb_9AAAF
+2026-03-11 18:42:28,279 [INFO] 通过设备连接: 测试路由器 (192.168.1.1:22)
+2026-03-11 18:42:28,294 [ERROR] SSH连接失败: [Errno None] Unable to connect to port 22 on 192.168.1.1
+2026-03-11 18:42:33,011 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-11 18:42:33,026 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-11 18:42:33,200 [INFO] Authentication (password) successful!
+2026-03-11 18:42:33,346 [INFO] SSH连接成功: 192.168.0.147:22 (sid=CvUPJdTlMCzvBb_9AAAF)
+2026-03-11 18:42:47,617 [INFO] 终端会话已清理: CvUPJdTlMCzvBb_9AAAF
+2026-03-11 18:42:47,617 [INFO] WebSocket断开: CvUPJdTlMCzvBb_9AAAF
+2026-03-11 18:42:56,922 [INFO] WebSocket连接: puSEVjLtfEoHZCzxAAAH
+2026-03-11 20:44:03,372 [INFO] WebSocket断开: puSEVjLtfEoHZCzxAAAH
+2026-03-12 09:10:36,071 [INFO] WebSocket连接: AO0Wo6Ea_ehnnToyAAAJ
+2026-03-12 09:25:43,545 [INFO] 用户登录成功: admin
+2026-03-12 09:25:43,644 [INFO] WebSocket连接: wHfkdfApnJIJgb5fAAAL
+2026-03-12 09:25:48,980 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-12 09:25:49,023 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-12 09:25:49,210 [INFO] Authentication (password) successful!
+2026-03-12 09:25:49,506 [INFO] SSH连接成功: 192.168.0.147:22 (sid=wHfkdfApnJIJgb5fAAAL)
+2026-03-12 09:43:20,972 [INFO] 终端会话已清理: wHfkdfApnJIJgb5fAAAL
+2026-03-12 09:43:20,972 [INFO] WebSocket断开: wHfkdfApnJIJgb5fAAAL
+2026-03-12 09:43:59,274 [INFO] WebSocket连接: UO0lMOLgwEHT-KTOAAAN
+2026-03-12 09:45:20,833 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-12 09:45:20,856 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-12 09:45:21,030 [INFO] Authentication (password) successful!
+2026-03-12 09:45:21,173 [INFO] SSH连接成功: 192.168.0.147:22 (sid=UO0lMOLgwEHT-KTOAAAN)
+2026-03-12 09:46:03,980 [INFO] 终端会话已清理: UO0lMOLgwEHT-KTOAAAN
+2026-03-12 09:46:09,526 [INFO] 本地终端已创建: pid=112142 (sid=UO0lMOLgwEHT-KTOAAAN)
+2026-03-12 09:46:09,528 [ERROR] PTY读取错误: module 'eventlet' has no attribute 'select'
+2026-03-12 09:46:09,528 [INFO] 终端会话已清理: UO0lMOLgwEHT-KTOAAAN
+2026-03-12 09:46:12,740 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-12 09:46:12,761 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-12 09:46:12,873 [INFO] Authentication (password) successful!
+2026-03-12 09:46:13,006 [INFO] SSH连接成功: 192.168.0.147:22 (sid=UO0lMOLgwEHT-KTOAAAN)
+2026-03-12 09:49:26,318 [INFO] AI提供商已初始化: qwen
+2026-03-12 09:49:26,324 [INFO] ==================================================
+2026-03-12 09:49:26,324 [INFO] 网络设备管理平台启动
+2026-03-12 09:49:26,324 [INFO] 默认账号: admin / admin123
+2026-03-12 09:49:26,324 [INFO] ==================================================
+2026-03-12 09:49:27,220 [INFO] WebSocket连接: wP99zOeu_wElFk9wAAAB
+2026-03-12 09:49:28,148 [INFO] WebSocket连接: 1totSi9Lk0FI5E7UAAAD
+2026-03-12 09:51:42,470 [INFO] WebSocket断开: wP99zOeu_wElFk9wAAAB
+2026-03-12 09:51:45,012 [INFO] 用户登录成功: admin
+2026-03-12 09:51:45,093 [INFO] WebSocket连接: KW0CG1e3xMRXZjZdAAAF
+2026-03-12 09:52:05,125 [INFO] WebSocket连接: 6GK2u2OuGCTHxrjhAAAH
+2026-03-12 09:52:06,430 [INFO] WebSocket断开: 6GK2u2OuGCTHxrjhAAAH
+2026-03-12 09:52:26,953 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-12 09:52:27,034 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-12 09:52:27,212 [INFO] Authentication (password) successful!
+2026-03-12 09:52:27,381 [INFO] SSH连接成功: 192.168.0.147:22 (sid=KW0CG1e3xMRXZjZdAAAF)
+2026-03-12 12:27:33,774 [INFO] 终端会话已清理: KW0CG1e3xMRXZjZdAAAF
+2026-03-12 12:27:33,774 [INFO] WebSocket断开: KW0CG1e3xMRXZjZdAAAF
+2026-03-12 12:27:33,786 [INFO] 用户登出: admin
+2026-03-12 12:27:37,545 [INFO] 用户登录成功: admin
+2026-03-12 12:27:37,687 [INFO] WebSocket连接: PcSCeAqeZdMFv2AVAAAJ
+2026-03-12 12:27:38,122 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-12 12:27:38,144 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-12 12:27:38,319 [INFO] Authentication (password) successful!
+2026-03-12 12:27:38,492 [INFO] SSH连接成功: 192.168.0.147:22 (sid=PcSCeAqeZdMFv2AVAAAJ)
+2026-03-12 15:19:52,290 [INFO] AI提供商已初始化: qwen
+2026-03-12 15:19:52,299 [INFO] ==================================================
+2026-03-12 15:19:52,299 [INFO] 网络设备管理平台启动
+2026-03-12 15:19:52,299 [INFO] 默认账号: admin / admin123
+2026-03-12 15:19:52,299 [INFO] ==================================================
+2026-03-12 15:19:56,247 [INFO] WebSocket连接: WhD-bI4wjvHuoLdlAAAB
+2026-03-12 15:19:57,700 [INFO] WebSocket连接: 3J28qYpVaA_jRB5jAAAD
+2026-03-12 15:23:16,041 [INFO] 用户登录成功: admin
+2026-03-12 15:39:57,148 [INFO] WebSocket断开: 3J28qYpVaA_jRB5jAAAD
+2026-03-12 15:39:59,369 [INFO] 用户登录成功: admin
+2026-03-12 15:39:59,455 [INFO] WebSocket连接: 4k-B9gaeZHyxcV38AAAF
+2026-03-12 15:40:04,309 [INFO] 通过设备连接: 147 (192.168.0.147:22)
+2026-03-12 15:40:04,395 [INFO] Connected (version 2.0, client OpenSSH_8.9p1)
+2026-03-12 15:40:04,615 [INFO] Authentication (publickey) failed.
+2026-03-12 15:40:04,676 [INFO] Authentication (password) successful!
+2026-03-12 15:40:04,871 [INFO] SSH连接成功: 192.168.0.147:22 (sid=4k-B9gaeZHyxcV38AAAF)
